@@ -130,6 +130,7 @@ namespace MarsRover.Driving.Engines
             if (lastPosition == null)
                 throw new ApplicationException("Unable to move: actual position is not set");
             DrivingFeedback cmdFeedback = this.MoveTo(cmd.Direction, cmd.Side);
+            lastPosition = cmdFeedback.TargetPosition;
             while (cmdFeedback.HasMoved && cmdIndex < commands.Count())
             {
                 try

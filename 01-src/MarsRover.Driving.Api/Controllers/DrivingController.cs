@@ -45,7 +45,7 @@ namespace MarsRover.Driving.Api.Controllers
         [HttpGet("Settings", Name = "GetSettings")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public DrivingSettingsResponse GetSettings()
         {
             var settings = this._SettingService.Get();
@@ -55,19 +55,54 @@ namespace MarsRover.Driving.Api.Controllers
             return response;
         }
 
-        // 
         /// <summary>
-        /// Moves the rovers forward/Backwards and Right/left
+        /// Gets the settings fo Driving Engine
         /// </summary>
-        /// <param name="request"></param>
-        /// <remarks>Sample: \POST api/Driving/MoveTo</remarks>
-        /// <returns>the informations about actual position of rover</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /Driving/Settings
+        ///     { "mode": "Cartesian" }
+        /// 
+        /// </remarks>
+        /// <returns>Actual Settings of Driving Engine</returns>
         /// <response code="200">The operations run succesfully</response>
         /// <response code="500">If unexpected error occurred</response>
-        [HttpPost("MoveTo", Name = "MoveTo")]
+        [HttpPut("Settings", Name = "GetSettings")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public string GetSettings([FromBody] string mode)
+        {
+            this._SettingService.Save(mode);
+            return "0";
+        }
+
+        // 
+        /// <summary>
+        /// Moves the rovers forward/Backwards and Right/left, based on list of commands
+        /// </summary>
+        /// <param name="request"></param>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /Driving/Move
+        ///     {
+        ///        "Commands": [ 
+        ///            { "x": 0.0, "y": 0.0, "z": null, "direction": "F", "side": "R" }, 
+        ///            {  "direction": "F", "side": "R" },
+        ///            { "direction": "B", "side": "L" }
+        ///         ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <returns>the informations about actual position of rover, in cartesian or Spherical coorinates (it depends on configuration</returns>
+        /// <response code="200">The operations run succesfully</response>
+        /// <response code="500">If unexpected error occurred</response>
+        [HttpPost("Move", Name = "MoveTo")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public DrivingResponse Post([FromBody] DrivingRoute request)
         {
             var settings = this._SettingService.Get();
@@ -98,35 +133,7 @@ namespace MarsRover.Driving.Api.Controllers
         }
     }
 
-    public class DrivingSettingsResponse
-    {
-        [Required]
-        [DefaultValue("CARTESIANO")]
-        public string Mode {get; set;}
-
-        [Required]
-        public string DataPath {get; set;}
-
-        public DrivingSettingsResponse()
-        {
-            this.Mode = "CARTESIANO";
-            this.DataPath = @"C:\Temp";
-        }
-    }
-
-    public class DrivingResponse
-    {
-        public bool HasMoved {get; set;}
-
-        public string ResultCode {get; set;}
-
-        public string ResultMessage {get; set;}
-
-        public CoordinatesDTO TargetPosition {get; set;}
-
-        public CoordinatesDTO Obstacle {get; set;}
-    }
-
+    #region Request - Response
     public class DrivingRoute
     {
         public List<DrivingCommand> Commands {get; set;}
@@ -138,9 +145,11 @@ namespace MarsRover.Driving.Api.Controllers
 
         public double Y{get; set;}
 
-                public double? Z{get; set;}
+        public double? Z{get; set;}
         public string Direction {get; set;}
 
         public string Side {get; set;}
     }
+
+    #endregion
 }
