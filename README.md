@@ -38,3 +38,31 @@ the api is modeled based on domain services, since its role is only exposing ove
 - DataManagement: at this resource you can set the obstacles
 
 the swagger file is accessible to the path: _/swagger/v1/swagger.json_
+
+### Request - Move
+for Move Api, use this sampe request:
+
+```json
+{
+    "Commands": [ 
+        { "x": 0.0, "y": 0.0, "z": null, "direction": "F", "side": "R" }, 
+        {  "direction": "F", "side": "R" },{ "direction": "B", "side": "L" }
+    ]
+}
+```
+
+### Request - Set Obstacle
+for  Api, use this sampe request:
+
+```json
+[ {"positionX": 1.25, "positionY": 0.25, "positionZ": null} ]
+```
+
+### Request - Set Settings
+for  Api, use this sampe request:
+
+```json
+{ 
+    "mode": "Cartesian"
+}
+```
