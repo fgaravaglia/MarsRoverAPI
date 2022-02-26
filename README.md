@@ -20,6 +20,7 @@ the domain exposes only Domain Services (public classes / interfaces):
 - _IDrivingService_: it exposes capabilities related to Driving system; example: give proper command to rover
 - _ISettingService_: it exposes capabilities to get or update settings of driving system
 - _IDataService_: it exposes capabilities to set proper data, used by systme, like set obstacles that rover has to manage
+The driving system (if the mode is set to "Spherical") can convert the position in spherical coordinates.
 
 ### Coordinates
 the commands to the rover can be specified in a "human being" format: 
@@ -27,7 +28,7 @@ the commands to the rover can be specified in a "human being" format:
 - Side: setting "L" for left, "R" for right
 we are assuming the radius of Mars planet is set to 1 Unit.
 
-the Driving sistem can get you the actual position of rover also in spherical coordinates. to transate cartesian to spherical coordinates we made a simplification: the moving of rovers are infinite less than radius, so we can assume taht carsian position (X, Y) are pretty much the same coorindates in spherical.
+the Driving sistem can get you the actual position of rover also in spherical coordinates. to transate cartesian to spherical coordinates we made a simplification: the moving of rovers are infinite less than radius, so we can assume that carsian position (X, Y) are pretty much the same coorindates in spherical and that we are in first quadrant: z, x, y > 0
 
 ![Coordinates](03-wiki/coordinates.PNG)
 
