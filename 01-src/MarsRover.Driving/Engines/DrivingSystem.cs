@@ -22,7 +22,12 @@ namespace MarsRover.Driving.Engines
 
         public void SetActualPosition(double x, double y, double? z)
         {
+            // check consistency for eventual conversion of reference
             var position = new Coordinates(x, y, z);
+            if(!z.HasValue)
+            {
+                position.positionZ = 1.0;
+            }
             this._localizer.SavePosition(position);
             LogInfo(this._trxId, $"Actual Position: {position.AsString}");
         }
@@ -129,6 +134,7 @@ namespace MarsRover.Driving.Engines
             Coordinates lastPosition = this._localizer.GetPosition();
             if (lastPosition == null)
                 throw new ApplicationException("Unable to move: actual position is not set");
+            Coordinates initialPosition = this._localizer.GetPosition();
             DrivingFeedback cmdFeedback = this.MoveTo(cmd.Direction, cmd.Side);
             lastPosition = cmdFeedback.TargetPosition;
             while (cmdFeedback.HasMoved && cmdIndex < commands.Count())
@@ -166,6 +172,9 @@ namespace MarsRover.Driving.Engines
             }
             // update position as a feedback
             cmdFeedback.TargetPosition = lastPosition;
+            // check if there were old movements
+            cmdFeedback.HasMoved = initialPosition.AsString != cmdFeedback.TargetPosition.AsString;
+                
             return cmdFeedback;
         }
         

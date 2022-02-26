@@ -72,9 +72,9 @@ namespace MarsRover.Driving.Api.Controllers
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public string GetSettings([FromBody] string mode)
+        public string GetSettings([FromBody] SaveDrivingSettingsRequest settings)
         {
-            this._SettingService.Save(mode);
+            this._SettingService.Save(settings.Mode);
             return "0";
         }
 

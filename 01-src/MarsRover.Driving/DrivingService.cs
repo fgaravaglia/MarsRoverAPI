@@ -22,50 +22,6 @@ namespace MarsRover.Driving
             this._localizer = new JsonGeoLocalizer(settings.DataPath);
         }
 
-        public DrivingFeedbackDTO MoveTo(CoordinatesDTO startingCoordinates, string direction, string side)
-        {
-            try
-            {
-                if (String.IsNullOrEmpty(direction))
-                    throw new ArgumentNullException(nameof(direction));
-                if (String.IsNullOrEmpty(side))
-                    throw new ArgumentNullException(nameof(side));
-                if (startingCoordinates == null)
-                    throw new ArgumentNullException(nameof(startingCoordinates));
-
-                DrivingSystem drivingSystem = new DrivingSystem(RadarSystem.FromSettings(this._settings, _obstacleRepository), this._localizer);
-                var coordinates = new Coordinates(startingCoordinates.positionX, startingCoordinates.positionY, startingCoordinates.positionZ);
-                drivingSystem.Start(coordinates);
-                var feedback = drivingSystem.MoveTo(direction, side).ToDto();
-
-                // check configuration for coordinates;
-                if (this._settings.ReferenceSystem == Coordinates.SystemsEnum.Spherical.ToString())
-                    feedback.TargetPosition = ReferenceConverterHelper.ConvertCartesianToSpherical(feedback.TargetPosition);
-
-                return feedback;
-            }
-            catch (ArgumentNullException argEx)
-            {
-                return new DrivingFeedbackDTO()
-                {
-                    HasMoved = false,
-                    ResultCode = "ERR-002",
-                    ResultMessage = "Request non valida: " + argEx.Message
-                };
-            }
-            catch (ApplicationException appEx)
-            {
-                return DrivingFeedback.FromApplicationException(appEx).ToDto();
-            }
-            catch (Exception ex)
-            {
-                // logging
-                Console.WriteLine("[ERR] " + ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                return DrivingFeedback.FromException(ex).ToDto();
-            }
-        }
-
         public DrivingFeedbackDTO Move(IEnumerable<DrivingCommandDTO> commands)
         {
             try
@@ -86,7 +42,13 @@ namespace MarsRover.Driving
                 // Start the engine and move it
                 DrivingSystem drivingSystem = new DrivingSystem(RadarSystem.FromSettings(this._settings, _obstacleRepository), this._localizer);
                 drivingSystem.Start(commandDtos.First().StartingPoint);
-                return drivingSystem.Move(commandDtos).ToDto();
+                var feedback = drivingSystem.Move(commandDtos).ToDto();
+
+                // check configuration for coordinates;
+                if (this._settings.ReferenceSystem == Coordinates.SystemsEnum.Spherical.ToString())
+                    feedback.TargetPosition = ReferenceConverterHelper.ConvertCartesianToSpherical(feedback.TargetPosition);
+
+                return feedback;
             }
             catch (ArgumentNullException argEx)
             {

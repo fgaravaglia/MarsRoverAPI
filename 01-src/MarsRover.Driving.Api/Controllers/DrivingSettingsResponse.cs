@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MarsRover.Driving.Api.Controllers
 {
+    public class SaveDrivingSettingsRequest
+    {
+        [Required]
+        public string Mode {get; set;}
+
+    }
+
     public class DrivingSettings
     {
         [Required]

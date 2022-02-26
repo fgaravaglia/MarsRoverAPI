@@ -48,9 +48,13 @@ namespace MarsRover.Driving.Tests
             {
                 positionX = 0, positionY = 0
             };
-
+            var commands = new List<DrivingCommandDTO>()
+            {
+                new DrivingCommandDTO(){ StartingPoint = startingPoint, Side = "R", Direction = "F"}
+            };
+            
             //*******| When
-            var feedback = service.MoveTo(startingPoint, "F", "R");
+            var feedback = service.Move(commands);
 
             //*******| Then
             Assert.IsNotNull(feedback);
@@ -71,9 +75,13 @@ namespace MarsRover.Driving.Tests
             {
                 positionX = 0, positionY = 0, positionZ = 0
             };
+            var commands = new List<DrivingCommandDTO>()
+            {
+                new DrivingCommandDTO(){ StartingPoint = startingPoint, Side = "R", Direction = "F"}
+            };
 
             //*******| When
-            var feedback = service.MoveTo(startingPoint, "F", "R");
+            var feedback = service.Move(commands);
 
             //*******| Then
             Assert.IsNotNull(feedback);
@@ -129,6 +137,7 @@ namespace MarsRover.Driving.Tests
                 new DrivingCommandDTO(){ StartingPoint = startingPoint, Side = "R", Direction = "F"},
                 new DrivingCommandDTO(){ StartingPoint = startingPoint, Direction = "F"}
             };
+            this._DataService.SetObstacles(new List<CoordinatesDTO>());
 
             //*******| When
             var feedback = service.Move(commands);
@@ -140,7 +149,6 @@ namespace MarsRover.Driving.Tests
             Assert.AreEqual( "OK", feedback.ResultCode, "Unexpected error occurred, since Rover didn't replied the OK Code");
             Assert.IsNull(feedback.ResultMessage);
             Assert.IsNotNull(feedback.TargetPosition);
-            Assert.IsNull(feedback.TargetPosition.positionZ);
             Assert.AreEqual(1, feedback.TargetPosition.positionX);
             Assert.AreEqual(2, feedback.TargetPosition.positionY);
             Assert.Pass();
@@ -148,7 +156,7 @@ namespace MarsRover.Driving.Tests
 
         [Test]
         [Category("DomainService")]
-        public void MoveWithObstacle_ReturnsObstacleFoundAndLastValidPosition()
+        public void MoveWithObstacle_ReturnsObstacleFoundAtSecondMoveAndLastValidPosition()
         {
             //*******| Given
             var service = new DrivingService(this._CartesianSettings);
@@ -168,11 +176,42 @@ namespace MarsRover.Driving.Tests
 
             //*******| Then
             Assert.IsNotNull(feedback);
-            Assert.IsFalse(feedback.HasMoved);
+            Assert.IsTrue(feedback.HasMoved);
             Assert.IsNotNull(feedback.ResultCode);
             Assert.AreEqual( "ERR-100", feedback.ResultCode, "Unexpected error occurred, since Rover didn't replied the OK Code");
             Assert.AreEqual(1, feedback.TargetPosition.positionX);
             Assert.AreEqual(1, feedback.TargetPosition.positionY);
+            Assert.IsNotNull(feedback.Obstacle);
+            Assert.Pass();
+        }
+
+        [Test]
+        [Category("DomainService")]
+        public void MoveWithObstacle_ReturnsObstacleFoundAtFirstMoveAndLastValidPosition()
+        {
+            //*******| Given
+            var service = new DrivingService(this._CartesianSettings);
+            var startingPoint = new CoordinatesDTO()
+            {
+                positionX = 0, positionY = 0
+            };
+            var commands = new List<DrivingCommandDTO>()
+            {
+                new DrivingCommandDTO(){ StartingPoint = startingPoint, Side = "R", Direction = "F"},
+                new DrivingCommandDTO(){ StartingPoint = startingPoint, Side = "R", Direction = "F"}
+            };
+            this._DataService.SetObstacles(new List<CoordinatesDTO>(){ new CoordinatesDTO(){ positionX = 0.25, positionY = 0.25 }});
+            
+            //*******| When
+            var feedback = service.Move(commands);
+
+            //*******| Then
+            Assert.IsNotNull(feedback);
+            Assert.IsFalse(feedback.HasMoved);
+            Assert.IsNotNull(feedback.ResultCode);
+            Assert.AreEqual( "ERR-100", feedback.ResultCode, "Unexpected error occurred, since Rover didn't replied the OK Code");
+            Assert.AreEqual(0, feedback.TargetPosition.positionX);
+            Assert.AreEqual(0, feedback.TargetPosition.positionY);
             Assert.IsNotNull(feedback.Obstacle);
             Assert.Pass();
         }
@@ -204,7 +243,7 @@ namespace MarsRover.Driving.Tests
             Assert.AreEqual( "ERR-100", feedback.ResultCode, "Unexpected error occurred, since Rover didn't replied the OK Code");
             Assert.AreEqual(startingPoint.positionX, feedback.TargetPosition.positionX);
             Assert.AreEqual(startingPoint.positionY, feedback.TargetPosition.positionY);
-            Assert.AreEqual(startingPoint.positionZ, feedback.TargetPosition.positionZ);
+            Assert.AreEqual(1, feedback.TargetPosition.positionZ);
             Assert.IsNotNull(feedback.Obstacle);
             Assert.Pass();
         }
