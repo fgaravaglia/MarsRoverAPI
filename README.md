@@ -30,6 +30,10 @@ we are assuming the radius of Mars planet is set to 1 Unit.
 the Driving sistem can get you the actual position of rover also in spherical coordinates. to transate cartesian to spherical coordinates we made a simplification: the moving of rovers are infinite less than radius, so we can assume taht carsian position (X, Y) are pretty much the same coorindates in spherical.
 so far, the formulas to transform cartesian to spherical are these ones:
 
+![Coordinates](03-/wiki/coordinates.png)
+
+
+
 
 
 ## API
